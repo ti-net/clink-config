@@ -29,6 +29,8 @@ export config.environment=dev
 
 ## 在程序中获取配置
 ```java
+import org.springframework.core.env.Environment;
+
 @Autowired
 private Environment environment;
 
