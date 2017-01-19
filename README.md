@@ -11,7 +11,12 @@
 ## Spring配置文件
 ```xml
 <bean class="com.tinet.ccic.config.RedisPropertySourcesPlaceholderConfigurer">
-		<property name="appId" value="myAppId" />
+    <property name="appId" value="myAppId" />
+    <property name="locations">
+        <list>
+            <value>classpath*:app.properties</value>
+        </list>
+    </property>
 </bean>
 ```
 
@@ -36,6 +41,15 @@ private Environment environment;
 
 String value = environment.getProperty(key);
 ```
+
+## 文件缓存
+客户端会在${user.home}/${appId}.properties中缓存Redis中的配置项内容。
+若没有连接Redis或Redis中找不到配置项，客户端会从文件缓存中加载。
+
+## 配置项的加载顺序
+Redis > 文件缓存 > 配置文件(app.properties)
+即Redis和文件缓存中都找不到配置项时，客户端会从配置文件(app.properties)中加载。
+在本地开发环境，可以不连接Redis，只使用配置文件(app.properties)，以便于测试。
 
 # 服务端
 GUI尚未实现，暂时只能在key=config:{$config.environment}的Redis Hash结构中手工添加。
