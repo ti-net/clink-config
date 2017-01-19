@@ -33,41 +33,27 @@ public class RedisPropertySourcesPlaceholderConfigurer extends PropertySourcesPl
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 		if (this.propertySources == null) {
 			this.propertySources = new MutablePropertySources();
+
+			RedisPropertySource redisPropertySource = new RedisPropertySource(REDIS_PROPERTIES_PROPERTY_SOURCE_NAME,
+					appId);
+			this.propertySources.addLast(redisPropertySource);
 			
 			if (this.environment != null) {
-				this.propertySources.addLast(
-						new PropertySource<Environment>(ENVIRONMENT_PROPERTIES_PROPERTY_SOURCE_NAME, this.environment) {
-							@Override
-							public String getProperty(String key) {
-								return this.source.getProperty(key);
-							}
-						});
+				((AbstractEnvironment) environment).getPropertySources().addLast(redisPropertySource);
 			}
 
 			try {
 				PropertySource<?> localPropertySource = new PropertiesPropertySource(
 						LOCAL_PROPERTIES_PROPERTY_SOURCE_NAME, mergeProperties());
-				if (this.localOverride) {
-					this.propertySources.addFirst(localPropertySource);
-					if (this.environment != null) {
-						((AbstractEnvironment) environment).getPropertySources().addFirst(localPropertySource);
-					}
-				} else {
-					this.propertySources.addLast(localPropertySource);
-					if (this.environment != null) {
-						((AbstractEnvironment) environment).getPropertySources().addLast(localPropertySource);
-					}
+				this.propertySources.addLast(localPropertySource);
+				
+				if (this.environment != null) {
+					((AbstractEnvironment) environment).getPropertySources().addLast(localPropertySource);
 				}
 			} catch (IOException ex) {
 				throw new BeanInitializationException("Could not load properties", ex);
 			}
 
-			RedisPropertySource redisPropertySource = new RedisPropertySource(REDIS_PROPERTIES_PROPERTY_SOURCE_NAME,
-					appId);
-			this.propertySources.addLast(redisPropertySource);
-			if (this.environment != null) {
-				((AbstractEnvironment) environment).getPropertySources().addLast(redisPropertySource);
-			}
 		}
 
 		processProperties(beanFactory, new PropertySourcesPropertyResolver(this.propertySources));

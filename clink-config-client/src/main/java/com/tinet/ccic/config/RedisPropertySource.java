@@ -20,6 +20,7 @@ import redis.clients.jedis.JedisPoolConfig;
 
 /**
  * Redis配置源，实现从Redis中动态加载配置项，并且通过监听Redis事件实现配置项的动态更新
+ * 配置项加载顺序：本地缓存(HashMap)>Redis>文件缓存>配置文件(app.properties)
  * 
  * @author Jiangsl
  *
@@ -68,8 +69,8 @@ public class RedisPropertySource extends PropertySource<String> {
 
 		// 初始化Redis连接池
 		JedisPoolConfig poolConfig = new JedisPoolConfig();
-		poolConfig.setMaxTotal(2);
-		poolConfig.setMaxIdle(2);
+		poolConfig.setMaxTotal(10);
+		poolConfig.setMaxIdle(10);
 		poolConfig.setMinIdle(1);
 		jedisPool = new JedisPool(poolConfig, redisHost, redisPort);
 	}
@@ -100,7 +101,7 @@ public class RedisPropertySource extends PropertySource<String> {
 		}
 
 		if (value == null) {
-			logger.warn("找不到配置项：" + key);
+			logger.warn("在Redis和文件缓存中都找不到配置项：" + key);
 		}
 
 		return value;
