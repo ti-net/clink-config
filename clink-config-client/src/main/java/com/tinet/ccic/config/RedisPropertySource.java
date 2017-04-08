@@ -49,7 +49,7 @@ public class RedisPropertySource extends PropertySource<String> {
 		// 设置文件缓存路径，默认保存至用户目录下的appId.properties
 		if (source != null && !source.isEmpty()) {
 			String userHome = System.getProperty("user.home");
-			fileCacheLocation = userHome + File.separator + source + ".properties";
+			fileCacheLocation = userHome + File.separator + "clink" + File.separator + source + ".properties";
 			File cacheFile = new File(fileCacheLocation);
 			if (!cacheFile.exists()) {
 				try {
