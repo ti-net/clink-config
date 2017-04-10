@@ -52,6 +52,12 @@ public class RedisPropertySource extends PropertySource<String> {
 			fileCacheLocation = userHome + File.separator + "clink" + File.separator + source + ".properties";
 			File cacheFile = new File(fileCacheLocation);
 			if (!cacheFile.exists()) {
+				//如果目标文件所在的目录不存在，则创建父目录  
+				if(!cacheFile.getParentFile().exists()) {  
+		            cacheFile.getParentFile().mkdirs();
+		        } 
+				
+				//如果目标文件不存在，则创建文件
 				try {
 					cacheFile.createNewFile();
 				} catch (IOException e) {
@@ -110,7 +116,8 @@ public class RedisPropertySource extends PropertySource<String> {
 	/**
 	 * 从Redis中加载配置项
 	 * 
-	 * @param key 配置项的key
+	 * @param key
+	 *            配置项的key
 	 * @return 配置项的value
 	 */
 	private String loadPropertyFromRedis(String key) {
@@ -140,7 +147,8 @@ public class RedisPropertySource extends PropertySource<String> {
 	/**
 	 * 从本地缓存中加载配置项
 	 * 
-	 * @param key 配置项的key
+	 * @param key
+	 *            配置项的key
 	 * @return 配置项的value
 	 */
 	private String loadPropertyFromLocalCache(String key) {
@@ -150,8 +158,10 @@ public class RedisPropertySource extends PropertySource<String> {
 	/**
 	 * 将配置项写入本地缓存
 	 * 
-	 * @param key 配置项的key
-	 * @param value 配置项的value
+	 * @param key
+	 *            配置项的key
+	 * @param value
+	 *            配置项的value
 	 */
 	private void savePropertyToLocalCache(String key, String value) {
 		localCache.put(key, value);
@@ -160,7 +170,8 @@ public class RedisPropertySource extends PropertySource<String> {
 	/**
 	 * 从文件缓存中加载配置项
 	 * 
-	 * @param key 配置项的key
+	 * @param key
+	 *            配置项的key
 	 * @return 配置项的value
 	 */
 	private String loadPropertyFromFileCache(String key) {
@@ -210,8 +221,10 @@ public class RedisPropertySource extends PropertySource<String> {
 	/**
 	 * 将配置项写入文件缓存
 	 * 
-	 * @param key 配置项的key
-	 * @param value 配置项的value
+	 * @param key
+	 *            配置项的key
+	 * @param value
+	 *            配置项的value
 	 */
 	private void savePropertyToFileCache(String key, String value) {
 		if (fileCacheLocation == null) {
