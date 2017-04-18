@@ -2,8 +2,6 @@ package com.tinet.ccic.config;
 
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -16,13 +14,12 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.PropertySourcesPropertyResolver;
 
 /**
- * 基于Redis的配置管理器
+ * 基于Redis的配置管理器，配置项加载优先级：环境变量 > Redis > 本地properties
  * 
  * @author Jiangsl
  *
  */
 public class RedisPropertySourcesPlaceholderConfigurer extends PropertySourcesPlaceholderConfigurer {
-	private Logger logger = LoggerFactory.getLogger(getClass());
 	private static final String REDIS_PROPERTIES_PROPERTY_SOURCE_NAME = "redisProperties";
 
 	private MutablePropertySources propertySources;
@@ -34,10 +31,20 @@ public class RedisPropertySourcesPlaceholderConfigurer extends PropertySourcesPl
 		if (this.propertySources == null) {
 			this.propertySources = new MutablePropertySources();
 
+			if (this.environment != null) {
+				this.propertySources.addLast(
+						new PropertySource<Environment>(ENVIRONMENT_PROPERTIES_PROPERTY_SOURCE_NAME, this.environment) {
+							@Override
+							public String getProperty(String key) {
+								return this.source.getProperty(key);
+							}
+						});
+			}
+
 			RedisPropertySource redisPropertySource = new RedisPropertySource(REDIS_PROPERTIES_PROPERTY_SOURCE_NAME,
 					appId);
 			this.propertySources.addLast(redisPropertySource);
-			
+
 			if (this.environment != null) {
 				((AbstractEnvironment) environment).getPropertySources().addLast(redisPropertySource);
 			}
@@ -46,7 +53,7 @@ public class RedisPropertySourcesPlaceholderConfigurer extends PropertySourcesPl
 				PropertySource<?> localPropertySource = new PropertiesPropertySource(
 						LOCAL_PROPERTIES_PROPERTY_SOURCE_NAME, mergeProperties());
 				this.propertySources.addLast(localPropertySource);
-				
+
 				if (this.environment != null) {
 					((AbstractEnvironment) environment).getPropertySources().addLast(localPropertySource);
 				}
