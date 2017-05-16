@@ -10,6 +10,7 @@ import org.springframework.core.env.AbstractEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertiesPropertySource;
+import org.springframework.core.env.PropertyResolver;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.PropertySourcesPropertyResolver;
 
@@ -25,7 +26,7 @@ public class RedisPropertySourcesPlaceholderConfigurer extends PropertySourcesPl
 	private MutablePropertySources propertySources;
 	private Environment environment;
 	private String appId;
-
+	private static MutablePropertySources ps;
 	@Override
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 		if (this.propertySources == null) {
@@ -62,8 +63,19 @@ public class RedisPropertySourcesPlaceholderConfigurer extends PropertySourcesPl
 			}
 
 		}
-
+		ps = this.propertySources;
 		processProperties(beanFactory, new PropertySourcesPropertyResolver(this.propertySources));
+	}
+	
+	
+	/**
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public static Object getValue(String key){
+		PropertyResolver propertyResolver = new PropertySourcesPropertyResolver(ps);  
+		return propertyResolver.getProperty(key);
 	}
 
 	@Override
