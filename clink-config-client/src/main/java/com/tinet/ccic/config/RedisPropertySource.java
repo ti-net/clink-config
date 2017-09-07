@@ -79,6 +79,7 @@ public class RedisPropertySource extends PropertySource<String> {
 		poolConfig.setMaxIdle(10);
 		poolConfig.setMinIdle(1);
 		jedisPool = new JedisPool(poolConfig, redisHost, redisPort);
+		new Thread(new RedisAsynListener(jedisPool,localCache)).start();;
 	}
 
 	@Override
