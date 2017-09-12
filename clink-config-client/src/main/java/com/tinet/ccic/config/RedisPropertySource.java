@@ -52,12 +52,12 @@ public class RedisPropertySource extends PropertySource<String> {
 			fileCacheLocation = userHome + File.separator + "clink" + File.separator + source + ".properties";
 			File cacheFile = new File(fileCacheLocation);
 			if (!cacheFile.exists()) {
-				//如果目标文件所在的目录不存在，则创建父目录  
-				if(!cacheFile.getParentFile().exists()) {  
-		            cacheFile.getParentFile().mkdirs();
-		        } 
-				
-				//如果目标文件不存在，则创建文件
+				// 如果目标文件所在的目录不存在，则创建父目录
+				if (!cacheFile.getParentFile().exists()) {
+					cacheFile.getParentFile().mkdirs();
+				}
+
+				// 如果目标文件不存在，则创建文件
 				try {
 					cacheFile.createNewFile();
 				} catch (IOException e) {
@@ -79,7 +79,7 @@ public class RedisPropertySource extends PropertySource<String> {
 		poolConfig.setMaxIdle(10);
 		poolConfig.setMinIdle(1);
 		jedisPool = new JedisPool(poolConfig, redisHost, redisPort);
-		new Thread(new RedisAsynListener(jedisPool,localCache)).start();;
+		new Thread(new RedisAsynListener(jedisPool, this)).start();
 	}
 
 	@Override
@@ -166,6 +166,18 @@ public class RedisPropertySource extends PropertySource<String> {
 	 */
 	private void savePropertyToLocalCache(String key, String value) {
 		localCache.put(key, value);
+	}
+
+	/**
+	 * 移除本地缓存配置项
+	 * 
+	 * @param configItem
+	 */
+	public void removeConfig(String configItem) {
+		if(localCache.containsKey(configItem)) {
+			localCache.remove(configItem);
+			logger.info("configItem "+configItem +"has been removed");
+		}
 	}
 
 	/**

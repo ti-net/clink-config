@@ -8,17 +8,18 @@ import org.slf4j.LoggerFactory;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
 
-/**Redis配置消息发布异步监听类
+/**
+ * Redis配置消息发布异步监听类
  * 
  * @author lihf
  * @date 2017年9月7日
  */
 public class RedisAsynListener implements Runnable {
-	private Map<String, String> localCache = null; // 本地缓存索引
+	private RedisPropertySource redisPropertySource = null;// redis配置项操作引用
 	private JedisPool jedisPool; // Redis连接池对象
 
-	public RedisAsynListener(JedisPool jedisPool, Map<String, String> localCache) {
-		this.localCache = localCache;
+	public RedisAsynListener(JedisPool jedisPool, RedisPropertySource redisPropertySource) {
+		this.redisPropertySource = redisPropertySource;
 		this.jedisPool = jedisPool;
 	}
 
@@ -40,11 +41,14 @@ public class RedisAsynListener implements Runnable {
 		@Override
 		public void onMessage(String channel, String message) {
 			logger.info("channel:" + channel + " receives message :" + message);
-
 			// 清空本地缓存对应的项，从redis服务器加载
-			if (localCache.containsKey(message)) {
-				localCache.remove(message);
-			}
+			redisPropertySource.removeConfig(message);
 		}
+
+		@Override
+		public void onSubscribe(String channel, int subscribedChannels) {
+			logger.info("channel:" + channel + "has been subscribed:" + subscribedChannels);
+		}
+
 	}
 }
