@@ -49,7 +49,7 @@ public class RedisPropertySource extends PropertySource<String> {
 		// 设置文件缓存路径，默认保存至用户目录下的appId.properties
 		if (source != null && !source.isEmpty()) {
 			String userHome = System.getProperty("user.home");
-			fileCacheLocation = userHome + File.separator + "clink" + File.separator + source + ".properties";
+			fileCacheLocation = userHome + File.separator + ".clink" + File.separator + source + ".properties";
 			File cacheFile = new File(fileCacheLocation);
 			if (!cacheFile.exists()) {
 				// 如果目标文件所在的目录不存在，则创建父目录
@@ -173,10 +173,10 @@ public class RedisPropertySource extends PropertySource<String> {
 	 * 
 	 * @param configItem
 	 */
-	public void removeConfig(String configItem) {
+	public void resetConfig(String configItem) {
 		if(localCache.containsKey(configItem)) {
 			localCache.remove(configItem);
-			logger.info("configItem "+configItem +"has been removed");
+			logger.info("configItem "+configItem +"has been reseted");
 		}
 	}
 

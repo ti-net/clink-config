@@ -1,6 +1,5 @@
 package com.tinet.ccic.config;
 
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,9 +14,12 @@ import redis.clients.jedis.JedisPubSub;
  * @date 2017年9月7日
  */
 public class RedisAsynListener implements Runnable {
+	
+	private static final String CONFIG_CHANNEL = "configChannel";//监听信道
+	
 	private RedisPropertySource redisPropertySource = null;// redis配置项操作引用
 	private JedisPool jedisPool; // Redis连接池对象
-
+		
 	public RedisAsynListener(JedisPool jedisPool, RedisPropertySource redisPropertySource) {
 		this.redisPropertySource = redisPropertySource;
 		this.jedisPool = jedisPool;
@@ -26,7 +28,7 @@ public class RedisAsynListener implements Runnable {
 	@Override
 	public void run() {
 		// 设置监听redis配置中心得异步监听线程
-		jedisPool.getResource().subscribe(new ConfigJedisPubSub(), "configChannel");
+		jedisPool.getResource().subscribe(new ConfigJedisPubSub(), CONFIG_CHANNEL);
 	}
 
 	/**
@@ -42,7 +44,7 @@ public class RedisAsynListener implements Runnable {
 		public void onMessage(String channel, String message) {
 			logger.info("channel:" + channel + " receives message :" + message);
 			// 清空本地缓存对应的项，从redis服务器加载
-			redisPropertySource.removeConfig(message);
+			redisPropertySource.resetConfig(message);
 		}
 
 		@Override
